@@ -38,6 +38,9 @@
       border-radius: 5px;
       cursor: pointer;
     }
+    button:hover {
+      background: #0056b3;
+    }
     .error {
       color: red;
       text-align: center;
@@ -54,11 +57,13 @@
       <button type="submit">Login</button>
     </form>
   </div>
+
   <script>
     document.getElementById("loginForm").addEventListener("submit", function(e){
       e.preventDefault();
       let username = document.getElementById("username").value.trim();
       let password = document.getElementById("password").value.trim();
+
       // 这里使用硬编码示例：用户名 admin，密码 123456
       if(username === "admin" && password === "123456"){
         // 登录成功，设置标识
