@@ -1,0 +1,17 @@
+[
+  {
+    "text": "尼桑 18年（5座）\n日租: 1100\n周租: 6000\n月租: 11000",
+    "image": "https://github.com/Anquanchehang/rental/blob/main/%E5%B0%BC%E6%A1%91.png?raw=true",
+    "selected": false
+  },
+  {
+    "text": "丰田 雅力士 23年（5座）\n日租: 1400\n周租: 7100\n月租: 16000",
+    "image": "https://github.com/Anquanchehang/rental/blob/main/%E9%9B%85%E5%8A%9B%E5%A3%AB1.png?raw=true",
+    "selected": false
+  },
+  {
+    "text": "本田 City 2023（5座）\n日租: 1300\n周租: 6500\n月租: 15000",
+    "image": "https://github.com/Anquanchehang/rental/blob/main/%E6%9C%AC%E7%94%B0%20city.png?raw=true",
+    "selected": false
+  }
+]
