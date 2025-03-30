@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>支付定金</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 20px; }
+    .back-btn {
+      background: #eee;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 15px;
+    }
+    .back-btn:hover { background: #ddd; }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .order-summary {
+      font-size: 16px;
+      margin-bottom: 20px;
+      line-height: 1.6;
+      text-align: left;
+    }
+    .order-summary p { margin: 8px 0; }
+    #paypal-button-container {
+      margin-top: 20px;
+      max-width: 350px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .divider {
+      margin: 30px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #888;
+    }
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: #ccc;
+      margin: 0 10px;
+    }
+    .qr-section {
+      margin-top: 30px;
+    }
+    .qr-section h2 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+    .qr-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .qr-box {
+      text-align: center;
+    }
+    .qr-box img {
+      width: 150px;
+      height: 150px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+    .qr-box p {
+      font-size: 16px;
+      margin-top: 8px;
+      color: #444;
+    }
+    .proof-link {
+      display: inline-block;
+      margin-top: 20px;
+      background: #007bff;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    .proof-link:hover { background: #0056b3; }
+    footer {
+      margin-top: 30px;
+      font-size: 14px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <!-- 返回按钮 -->
+  <button class="back-btn" onclick="goBack()">← 返回</button>
+
+  <div class="container">
+    <h1>支付定金</h1>
+    <!-- 订单摘要区域 -->
+    <div class="order-summary" id="orderSummary">
+      <p>租车订单定金：<strong>฿1000.00</strong></p>
+      <!-- 可根据需要动态显示其他订单信息 -->
+    </div>
+
+    <!-- PayPal 支付按钮区域 -->
+    <div id="paypal-button-container"></div>
+
+    <!-- 分割线 -->
+    <div class="divider">或</div>
+
+    <!-- 二维码支付区域 -->
+    <div class="qr-section">
+      <h2>使用二维码支付</h2>
+      <div class="qr-container">
+        <div class="qr-box">
+          <img src="https://example.com/path-to-alipay-qr.png" alt="支付宝二维码">
+          <p>支付宝支付</p>
+        </div>
+        <div class="qr-box">
+          <img src="https://example.com/path-to-wechat-qr.png" alt="微信二维码">
+          <p>微信支付</p>
+        </div>
+      </div>
+      <p style="margin-top: 15px;">请使用相应 App 扫描二维码完成支付</p>
+
+      <!-- 上传凭证链接 -->
+      <a class="proof-link" href="upload.html">上传支付凭证</a>
+    </div>
+  </div>
+
+  <footer>如有疑问，请联系客服</footer>
+
+  <!-- 引入 PayPal JavaScript SDK，请确保将 YOUR_CLIENT_ID 替换为真实 Client ID -->
+  <script src="https://www.paypal.com/sdk/js?client-id=ASsijEO47xH4dc0k0PMnnnd3EBwMALhqhyd-cxWreY4wWHHPb2TJ7t11QmVAy8SJXTe0VyFsVqJcbwop&currency=THB"></script>
+  <script>
+    function goBack() {
+      window.history.back();
+    }
+
+    // 初始化 PayPal 按钮
+    paypal.Buttons({
+      createOrder: function(data, actions) {
+        return actions.order.create({
+          purchase_units: [{
+            amount: { value: '1000.00' },
+            description: "租车订单定金"
+          }]
+        });
+      },
+      onApprove: function(data, actions) {
+        return actions.order.capture().then(function(details) {
+          // 支付成功后直接跳转到成功页面（success.html）
+          window.location.href = "success.html?orderId=ABC123"; // 可传订单号参数
+        });
+      },
+      onError: function(err) {
+        console.error("PayPal 支付错误：", err);
+        alert("支付过程中出现错误，请稍后重试");
+      }
+    }).render('#paypal-button-container');
+  </script>
+</body>
+</html>

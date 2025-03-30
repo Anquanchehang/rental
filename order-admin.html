@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Order Management</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome (可选，用于图标) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* 导航栏额外样式，可根据需求调整 */
+    .admin-nav {
+      background-color: #fff;
+      padding: 10px;
+    }
+
+    /* 外层容器：占据95%宽度，最大1200px，水平居中 */
+    .container {
+      margin: 20px auto;
+      max-width: 1200px;
+      width: 95%;
+    }
+
+    /* 每个订单卡片 */
+    .order-card {
+      margin: 20px auto;
+      max-width: 1200px;
+      width: 95%;
+      padding: 15px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      /* 字体加大 */
+      font-size: 30px;
+    }
+
+    .order-card h5 {
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .order-card p {
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .footer {
+      background-color: #eee;
+      text-align: center;
+      padding: 10px;
+      margin-top: 30px;
+    }
+  </style>
+
+  <!-- 如果用户未登录admin，则跳转到login.html -->
+  <script>
+    if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+      window.location.href = 'login.html';
+    }
+  </script>
+</head>
+<body>
+  <!-- 公共导航栏 -->
+  <nav class="admin-nav mb-3 text-center">
+    <a href="vehicle-admin.html" class="btn btn-primary me-2">车辆管理</a>
+    <a href="order-admin.html" class="btn btn-secondary">订单管理</a>
+  </nav>
+
+  <div class="container">
+    <h2>Admin - Order Management</h2>
+    <div id="orderList"></div>
+  </div>
+
+  <div class="footer">
+    <p>Admin Panel © 2025</p>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- 业务逻辑脚本 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { 
+      getFirestore,
+      collection,
+      onSnapshot,
+      updateDoc,
+      doc
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    // 1) 替换为你的 Firebase 配置
+    const firebaseConfig = {
+      apiKey: "AIzaSyCdnLMa08erHhagro9PKHT2DU7mKcHCYe4",
+      authDomain: "rental-7fe8c.firebaseapp.com",
+      projectId: "rental-7fe8c",
+      storageBucket: "rental-7fe8c.firebasestorage.app",
+      messagingSenderId:  "263132536954",
+      appId: "1:263132536954:web:55d988d88b1a078b4b9bc3",
+  
+    };
+
+    // 2) 初始化 Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // 3) 监听 orders 集合
+    onSnapshot(collection(db, "orders"), (snapshot) => {
+      const orders = [];
+      snapshot.forEach((docSnap) => {
+        orders.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      renderOrders(orders);
+    });
+
+    // 4) 渲染订单列表
+    function renderOrders(orders) {
+      const orderList = document.getElementById("orderList");
+      orderList.innerHTML = "";
+      orders.forEach((order, idx) => {
+        // 订单状态
+        const status = order.status || "pending";
+        // 根据状态决定按钮是否显示/禁用
+        let confirmButton = "";
+        let cancelButton = "";
+
+        if (status === "pending") {
+          confirmButton = `<button class="btn btn-success btn-sm me-2" onclick="confirmOrder('${order.id}')">确认订单</button>`;
+          cancelButton = `<button class="btn btn-danger btn-sm" onclick="cancelOrder('${order.id}')">取消订单</button>`;
+        } else if (status === "confirmed") {
+          confirmButton = `<button class="btn btn-success btn-sm me-2" disabled>已确认</button>`;
+          cancelButton = `<button class="btn btn-danger btn-sm" onclick="cancelOrder('${order.id}')">取消订单</button>`;
+        } else if (status === "canceled") {
+          confirmButton = `<button class="btn btn-secondary btn-sm me-2" disabled>已取消</button>`;
+          cancelButton = `<button class="btn btn-danger btn-sm" disabled>已取消</button>`;
+        }
+
+        const orderHtml = `
+          <div class="order-card">
+            <h5>订单 ${idx + 1}</h5>
+            <p><strong>车辆:</strong> ${order.carName || "未知"}</p>
+            <p><strong>取车日期:</strong> ${order.startDate || "未填"}</p>
+            <p><strong>还车日期:</strong> ${order.endDate || "未填"}</p>
+            <p><strong>客户:</strong> ${order.name || "未知"} - ${order.phone || "未知"}</p>
+            <p><strong>天数:</strong> ${order.days || "--"}　<strong>价格:</strong> ${order.totalPrice || "--"}</p>
+            <p><strong>状态:</strong> ${status}</p>
+            <div class="mt-2">
+              ${confirmButton}
+              ${cancelButton}
+            </div>
+          </div>
+        `;
+        orderList.insertAdjacentHTML("beforeend", orderHtml);
+      });
+    }
+
+    // 5) 确认订单函数
+    window.confirmOrder = async function(orderId) {
+      try {
+        await updateDoc(doc(db, "orders", orderId), { status: "confirmed" });
+        alert("订单已确认！");
+      } catch (error) {
+        alert("确认失败：" + error.message);
+      }
+    }
+
+    // 6) 取消订单函数
+    window.cancelOrder = async function(orderId) {
+      if (!confirm("确认要取消该订单吗？")) return;
+      try {
+        await updateDoc(doc(db, "orders", orderId), { status: "canceled" });
+        alert("订单已取消！");
+      } catch (error) {
+        alert("取消失败：" + error.message);
+      }
+    }
+  </script>
+</body>
+</html>

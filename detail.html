@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title data-i18n="detailTitle">车辆详情</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- 引入 Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    /* 全局样式 */
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 0;
+      background-color: #007bff;
+      font-family: Arial, sans-serif;
+    }
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #fff;
+      color: #333;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      z-index: 999;
+    }
+    .page-wrapper {
+      width: 95%;
+      max-width: 1200px;
+      margin: 30px auto;
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: row;
+      position: relative;
+      overflow: hidden;
+    }
+    .left-section {
+      flex: 0 0 60%;
+      background-color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .left-section img {
+      width: 85%;
+      max-width: 550px;
+      height: auto;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+    .right-section {
+      flex: 0 0 40%;
+      min-width: 300px;
+      padding: 20px 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .car-title {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .price-info {
+      font-size: 24px;
+      line-height: 1.8;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .detail-box {
+      width: 80%;
+      margin: 0 auto 20px;
+      background-color: #f5f5f5;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+    .info-line {
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    .info-line span {
+      font-weight: bold;
+      color: #333;
+    }
+    .next-btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .next-btn:hover {
+      background-color: #0056c1;
+    }
+    #statusMsg {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+    @media (max-width: 768px) {
+      .page-wrapper { flex-direction: column; }
+      .left-section, .left-section img {
+        width: 100%; max-width: none;
+        margin: 0 auto; display: block;
+      }
+      .right-section { flex: 0 0 auto; width: 100%; }
+      .back-btn { position: static; margin: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 返回按钮 -->
+  <button class="back-btn" onclick="window.history.back()">返回</button>
+
+  <!-- 页面主体容器 -->
+  <div class="page-wrapper">
+    <!-- 左侧区域：车辆图片 -->
+    <div class="left-section">
+      <img id="carImage" src="https://via.placeholder.com/400" alt="Car Image">
+    </div>
+    <!-- 右侧区域：车辆信息与表单 -->
+    <div class="right-section">
+      <!-- 车型名称 -->
+      <div class="car-title" id="carTitle" data-i18n="detailUnknownModel">未知车型</div>
+      <!-- 价格信息 -->
+      <div class="price-info mb-3">
+        <p><span data-i18n="detailDailyPrice">日租：</span><span id="dailyPrice">---</span></p>
+        <p><span data-i18n="detailWeeklyPrice">周租：</span><span id="weeklyPrice">---</span></p>
+        <p><span data-i18n="detailMonthlyPrice">月租：</span><span id="monthlyPrice">---</span></p>
+      </div>
+      <!-- 详细描述 -->
+      <div class="detail-box mb-3" id="carDetail"></div>
+      <!-- 日期选择 -->
+      <div class="mb-3">
+        <label for="startDate" class="form-label" data-i18n="detailPickDate">取车日期：</label>
+        <input type="date" class="form-control" id="startDate" />
+      </div>
+      <div class="mb-3">
+        <label for="endDate" class="form-label" data-i18n="detailReturnDate">还车日期：</label>
+        <input type="date" class="form-control" id="endDate" />
+      </div>
+      <!-- 显示租车天数与价格 -->
+      <div class="info-line">
+        <span data-i18n="detailRentalDays">租车天数：</span>
+        <span id="daysInfo">0</span> 天
+      </div>
+      <div class="info-line">
+        <span data-i18n="detailPayablePrice">应付价格：</span>
+        <span id="priceInfo">0</span> THB
+      </div>
+      <!-- “下一步”按钮：弹出 Modal -->
+      <button class="next-btn" id="nextBtn" data-bs-toggle="modal" data-bs-target="#confirmModal" data-i18n="detailNextStep">下一步</button>
+      <div id="statusMsg"></div>
+    </div>
+  </div>
+
+  <!-- Bootstrap Modal 弹窗 -->
+  <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" data-i18n="confirmOrderTitle">确认订单</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- 显示天数、价格 -->
+          <p><span data-i18n="detailRentalDays">租车天数：</span><span id="modalDays">0</span> 天</p>
+          <p><span data-i18n="detailPayablePrice">应付价格：</span><span id="modalPrice">0</span> THB</p>
+          <!-- 租车说明 / 公司地址 / 送车费提示 -->
+          <div class="bg-light p-3 mb-3" style="border-radius: 5px;">
+            <p><strong data-i18n="modalAddressTitle">公司地址：</strong> 888 Ratchadapisek Rd, Bangkok, Thailand</p>
+            <p><strong data-i18n="modalPolicyTitle">租车政策：</strong> 押一付一，需支付押金后方可提车。</p>
+            <p><strong data-i18n="modalDeliveryFeeTitle">送车费：</strong> 如果需要送车到清迈或芭提雅，需额外收取 <strong>2500 THB</strong>。</p>
+          </div>
+          <!-- 地区号与电话号码 -->
+          <div class="mb-3">
+            <label for="countryCode" class="form-label" data-i18n="modalCountryCode">地区号：</label>
+            <select class="form-select" id="countryCode">
+              <option value="+86">中国 +86</option>
+              <option value="+66">泰国 +66</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="userPhone" class="form-label" data-i18n="modalUserPhone">联系电话：</label>
+            <input type="text" class="form-control" id="userPhone" placeholder="请输入手机号" />
+          </div>
+          <div class="mb-3">
+            <label for="userName" class="form-label" data-i18n="modalUserName">姓名：</label>
+            <input type="text" class="form-control" id="userName" placeholder="请输入姓名" />
+          </div>
+          <div id="modalMsg" style="color: red; margin-top: 5px;"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="modalCancel">取消</button>
+          <button type="button" class="btn btn-primary" id="confirmBtn" data-i18n="modalConfirm">确认</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 引入 Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- 业务逻辑脚本 -->
+  <script type="module">
+    // ========== 多语言相关函数 ==========
+    async function loadLanguage(lang) {
+      try {
+        const resp = await fetch(`lang/${lang}.json`);
+        return await resp.json();
+      } catch (err) {
+        console.error("语言文件加载失败:", err);
+        return {};
+      }
+    }
+    function applyLanguage(langData) {
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (langData[key]) {
+          el.textContent = langData[key];
+        }
+      });
+    }
+    function getCurrentLang() {
+      return localStorage.getItem("selectedLanguage") || "zh";
+    }
+
+    // ========== 解析 URL 中的车辆数据 ==========
+    const urlParams = new URLSearchParams(window.location.search);
+    const carDataEncoded = urlParams.get("carData");
+    let carDailyPrice = 0, carWeeklyPrice = 0, carMonthlyPrice = 0;
+    if (carDataEncoded) {
+      try {
+        const selectedCar = JSON.parse(decodeURIComponent(carDataEncoded));
+        // 取当前语言的车辆文本（支持新格式对象和旧格式字符串）
+        let txt = "";
+        if (selectedCar.text) {
+          if (typeof selectedCar.text === "string") {
+            txt = selectedCar.text;
+          } else {
+            const lang = getCurrentLang();
+            txt = selectedCar.text[lang] || "";
+          }
+        }
+        // 拆分文本：假设第一行为车名，后续三行为价格信息
+        const lines = txt.split("\n");
+        const carName = lines[0] || "未知车型";
+        document.getElementById("carTitle").textContent = carName.trim();
+        // 解析价格信息
+        const dailyMatch = lines[1] ? lines[1].match(/(\d+)/) : null;
+        const weeklyMatch = lines[2] ? lines[2].match(/(\d+)/) : null;
+        const monthlyMatch = lines[3] ? lines[3].match(/(\d+)/) : null;
+        carDailyPrice = dailyMatch ? parseInt(dailyMatch[1]) : 0;
+        carWeeklyPrice = weeklyMatch ? parseInt(weeklyMatch[1]) : 0;
+        carMonthlyPrice = monthlyMatch ? parseInt(monthlyMatch[1]) : 0;
+        document.getElementById("dailyPrice").textContent = carDailyPrice || "---";
+        document.getElementById("weeklyPrice").textContent = carWeeklyPrice || "---";
+        document.getElementById("monthlyPrice").textContent = carMonthlyPrice || "---";
+        // 图片
+        document.getElementById("carImage").src = selectedCar.image || "https://via.placeholder.com/400";
+        // 处理 description（支持对象格式或字符串）
+        let desc = "";
+        if (selectedCar.description) {
+          if (typeof selectedCar.description === "string") {
+            desc = selectedCar.description;
+          } else {
+            const lang = getCurrentLang();
+            desc = selectedCar.description[lang] || "";
+          }
+        }
+        document.getElementById("carDetail").textContent = desc;
+      } catch (e) {
+        console.error("解析 carData 失败:", e);
+      }
+    } else {
+      console.log("URL 中没有传入 carData");
+    }
+
+    // ========== 租车天数与价格计算 ==========
+    function updatePrice() {
+      const startVal = document.getElementById("startDate").value;
+      const endVal = document.getElementById("endDate").value;
+      const daysEl = document.getElementById("daysInfo");
+      const priceEl = document.getElementById("priceInfo");
+      if (!startVal || !endVal) {
+        daysEl.textContent = 0;
+        priceEl.textContent = 0;
+        return;
+      }
+      const startDate = new Date(startVal);
+      const endDate = new Date(endVal);
+      if (endDate <= startDate) {
+        daysEl.textContent = "日期错误";
+        priceEl.textContent = 0;
+        return;
+      }
+      const diffTime = endDate - startDate;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      daysEl.textContent = diffDays;
+      let totalPrice = 0;
+      if (diffDays < 7) {
+        totalPrice = carDailyPrice * diffDays;
+      } else if (diffDays < 30) {
+        totalPrice = (carWeeklyPrice / 7) * diffDays;
+      } else {
+        totalPrice = (carMonthlyPrice / 30) * diffDays;
+      }
+      priceEl.textContent = Math.round(totalPrice);
+    }
+    document.getElementById("startDate").addEventListener("change", updatePrice);
+    document.getElementById("endDate").addEventListener("change", updatePrice);
+
+    // ========== Modal 显示时同步数据 ==========
+    const nextBtn = document.getElementById("nextBtn");
+    nextBtn.addEventListener("click", () => {
+      const daysText = document.getElementById("daysInfo").textContent;
+      const priceText = document.getElementById("priceInfo").textContent;
+      document.getElementById("modalDays").textContent = daysText;
+      document.getElementById("modalPrice").textContent = priceText;
+      document.getElementById("modalMsg").textContent = "";
+    });
+
+    // ========== 电话号码验证函数 ==========
+    function validatePhoneNumber(phone, countryCode) {
+      const cleaned = phone.replace(/\D/g, "");
+      if (countryCode === "+86") {
+        return /^\d{11}$/.test(cleaned);
+      } else if (countryCode === "+66") {
+        return /^\d{9}$/.test(cleaned);
+      }
+      return false;
+    }
+
+    // ========== 提交订单逻辑 ==========
+    import { initializeApp as initializeApp2 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getFirestore as getFirestore2, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    const firebaseConfig2 = {
+      apiKey: "AIzaSyCdnLMa08erHhagro9PKHT2DU7mKcHCYe4",
+      authDomain: "rental-7fe8c.firebaseapp.com",
+      projectId: "rental-7fe8c",
+      storageBucket: "rental-7fe8c.firebasestorage.app",
+      messagingSenderId: "263132536954",
+      appId: "1:263132536954:web:55d988d88b1a078b4b9bc3"
+    };
+    const appFB = initializeApp2(firebaseConfig2);
+    const dbFB = getFirestore2(appFB);
+
+    const confirmBtn = document.getElementById("confirmBtn");
+    confirmBtn.addEventListener("click", async () => {
+      const modalMsg = document.getElementById("modalMsg");
+      const daysText = document.getElementById("modalDays").textContent;
+      const priceText = document.getElementById("modalPrice").textContent;
+      const userName = document.getElementById("userName").value.trim();
+      const userPhone = document.getElementById("userPhone").value.trim();
+      const countryCode = document.getElementById("countryCode").value;
+      const startVal = document.getElementById("startDate").value;
+      const endVal = document.getElementById("endDate").value;
+
+      if (!userName || !userPhone || !startVal || !endVal) {
+        modalMsg.textContent = "请填写完整信息后再提交。";
+        return;
+      }
+      if (new Date(endVal) <= new Date(startVal)) {
+        modalMsg.textContent = "还车日期必须大于取车日期。";
+        return;
+      }
+      if (!validatePhoneNumber(userPhone, countryCode)) {
+        modalMsg.textContent = "请输入有效的电话号码（中国11位或泰国9位）。";
+        return;
+      }
+      try {
+        const orderData = {
+          name: userName,
+          phone: countryCode + userPhone,
+          startDate: startVal,
+          endDate: endVal,
+          days: daysText,
+          totalPrice: priceText,
+          carName: document.getElementById("carTitle").textContent,
+          createdAt: serverTimestamp()
+        };
+        const docRef = await addDoc(collection(dbFB, "orders"), orderData);
+        // 提交成功后跳转到 pay.html
+        window.location.href = "pay.html";
+      } catch (error) {
+        console.error("提交失败：", error);
+        modalMsg.textContent = "提交失败，请稍后重试。";
+      }
+    });
+
+    // ========== 静态文案多语言加载 ==========
+    async function initLanguage() {
+      const currentLang = getCurrentLang();
+      const langData = await loadLanguage(currentLang);
+      applyLanguage(langData);
+    }
+    window.addEventListener("DOMContentLoaded", async () => {
+      await initLanguage();
+    });
+  </script>
+</body>
+</html>
