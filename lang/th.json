@@ -1,19 +1,34 @@
 {
-  "rentalTypeLabel": "ระยะเวลาเช่า:"
-  "priceRangeLabel": "ช่วงราคา:"
-  "dayOption": "รายวัน"
-  "weekOption": "รายสัปดาห์"
-  "monthOption": "รายเดือน"
-  "all": "ทั้งหมด"
-  "contactLine": "LINE / WhatsApp: +66 0937851189"
-  "contactEmail": "อีเมล: zfg77@qq.com"
-  "languageLabel": "ภาษา:"
-  "optionZh": "จีน"
-  "optionEn": "อังกฤษ"
-  "optionTh": "ไทย"
-  "detailPickDate": "วันที่รับรถ:"
-  "detailReturnDate": "วันที่คืนรถ:"
-  "detailRentalDays": "จำนวนวันเช่า:"
-  "detailPayablePrice": "ราคาที่ต้องชำระ:"
-  "detailNextStep": "ถัดไป"
+  "languageLabel": "ภาษา:",
+  "optionChina": "จีน +86",
+  "optionThailand": "ไทย +66",
+  "optionPromptpay": "PromptPay",
+  "back": "กลับ",
+  "rentalTypeLabel": "ระยะเวลาเช่า:",
+  "priceRangeLabel": "ช่วงราคา:",
+  "dayOption": "รายวัน",
+  "weekOption": "รายสัปดาห์",
+  "monthOption": "รายเดือน",
+  "all": "ทั้งหมด",
+  "detailTitle": "รายละเอียดรถ",
+  "detailUnknownModel": "รุ่นไม่ทราบ",
+  "detailDailyPrice": "รายวัน:",
+  "detailWeeklyPrice": "รายสัปดาห์:",
+  "detailMonthlyPrice": "รายเดือน:",
+  "detailPickDate": "วันที่รับรถ:",
+  "detailReturnDate": "วันที่คืนรถ:",
+  "detailRentalDays": "จำนวนวันเช่า:",
+  "detailPayablePrice": "ราคาที่ต้องชำระ:",
+  "detailNextStep": "ถัดไป",
+  "confirmOrderTitle": "ยืนยันการจอง",
+  "modalCountryCode": "รหัสประเทศ:",
+  "modalUserPhone": "เบอร์โทร:",
+  "modalUserName": "ชื่อ:",
+  "modalConfirm": "ยืนยัน",
+  "modalCancel": "ยกเลิก",
+  "payTitle": "ชำระเงินมัดจำ",
+  "payTotalLabel": "จำนวนมัดจำ:",
+  "payUploadTitle": "อัปโหลดหลักฐานการชำระเงิน",
+  "uploadPaymentTitle": "อัปโหลดหลักฐานการชำระเงิน",
+  "uploadPaymentBack": "กลับ"
 }
