@@ -1,20 +1,34 @@
 {
-  "rentalTypeLabel": "租期："
-  "priceRangeLabel": "价格区间："
-  "dayOption": "日租"
-  "weekOption": "周租"
-  "monthOption": "月租"
-  "all": "全部"
-  "contactLine": "LINE / WhatsApp: +66 0937851189"
-  "contactEmail": "邮箱: zfg77@qq.com"
-  "languageLabel": "语言："
-  "optionZh": "中文"
-  "optionEn": "英文"
-  "optionTh": "泰文"
-
-  "detailPickDate": "取车日期："
-  "detailReturnDate": "还车日期："
-  "detailRentalDays": "租车天数："
-  "detailPayablePrice": "应付价格："
-  "detailNextStep": "下一步"
+  "languageLabel": "语言：",
+  "optionChina": "中国 +86",
+  "optionThailand": "泰国 +66",
+  "optionPromptpay": "PromptPay",
+  "back": "返回",
+  "rentalTypeLabel": "租期：",
+  "priceRangeLabel": "价格区间：",
+  "dayOption": "日租",
+  "weekOption": "周租",
+  "monthOption": "月租",
+  "all": "全部",
+  "detailTitle": "车辆详情",
+  "detailUnknownModel": "未知车型",
+  "detailDailyPrice": "日租：",
+  "detailWeeklyPrice": "周租：",
+  "detailMonthlyPrice": "月租：",
+  "detailPickDate": "取车日期：",
+  "detailReturnDate": "还车日期：",
+  "detailRentalDays": "租车天数：",
+  "detailPayablePrice": "应付价格：",
+  "detailNextStep": "下一步",
+  "confirmOrderTitle": "确认订单",
+  "modalCountryCode": "地区号：",
+  "modalUserPhone": "联系电话：",
+  "modalUserName": "姓名：",
+  "modalConfirm": "确认",
+  "modalCancel": "取消",
+  "payTitle": "支付定金",
+  "payTotalLabel": "定金金额：",
+  "payUploadTitle": "上传支付凭证",
+  "uploadPaymentTitle": "上传支付凭证",
+  "uploadPaymentBack": "返回"
 }
