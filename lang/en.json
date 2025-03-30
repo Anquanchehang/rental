@@ -7,4 +7,10 @@
   "all": "All",
   "contactLine": "LINE / WhatsApp: +66 0937851189",
   "contactEmail": "Email: zfg77@qq.com"
+  "languageLabel": "Language:"
+  "detailPickDate": "Pick-up Date:",
+  "detailReturnDate": "Return Date:",
+  "detailRentalDays": "Rental Days:",
+  "detailPayablePrice": "Payable Price:",
+  "detailNextStep": "Next Step"
 }
