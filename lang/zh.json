@@ -1,16 +1,20 @@
 {
-  "rentalTypeLabel": "租期：",
-  "priceRangeLabel": "价格区间：",
-  "dayOption": "日租",
-  "weekOption": "周租",
-  "monthOption": "月租",
-  "all": "全部",
-  "contactLine": "LINE / WhatsApp: +66 0937851189",
+  "rentalTypeLabel": "租期："
+  "priceRangeLabel": "价格区间："
+  "dayOption": "日租"
+  "weekOption": "周租"
+  "monthOption": "月租"
+  "all": "全部"
+  "contactLine": "LINE / WhatsApp: +66 0937851189"
   "contactEmail": "邮箱: zfg77@qq.com"
   "languageLabel": "语言："
-  "detailPickDate": "取车日期：",
-  "detailReturnDate": "还车日期：",
-  "detailRentalDays": "租车天数：",
-  "detailPayablePrice": "应付价格：",
+  "optionZh": "中文"
+  "optionEn": "英文"
+  "optionTh": "泰文"
+
+  "detailPickDate": "取车日期："
+  "detailReturnDate": "还车日期："
+  "detailRentalDays": "租车天数："
+  "detailPayablePrice": "应付价格："
   "detailNextStep": "下一步"
 }
