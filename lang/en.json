@@ -1,19 +1,34 @@
 {
-  "rentalTypeLabel": "Rental Type:"
-  "priceRangeLabel": "Price Range:"
-  "dayOption": "Day"
-  "weekOption": "Week"
-  "monthOption": "Month"
-  "all": "All"
-  "contactLine": "LINE / WhatsApp: +66 0937851189"
-  "contactEmail": "Email: zfg77@qq.com"
-  "languageLabel": "Language:"
-  "optionZh": "Chinese"
-  "optionEn": "English"
-  "optionTh": "Thai"
-  "detailPickDate": "Pick-up Date:"
-  "detailReturnDate": "Return Date:"
-  "detailRentalDays": "Rental Days:"
-  "detailPayablePrice": "Payable Price:"
-  "detailNextStep": "Next Step"
+  "languageLabel": "Language:",
+  "optionChina": "China +86",
+  "optionThailand": "Thailand +66",
+  "optionPromptpay": "PromptPay",
+  "back": "Back",
+  "rentalTypeLabel": "Rental Type:",
+  "priceRangeLabel": "Price Range:",
+  "dayOption": "Day",
+  "weekOption": "Week",
+  "monthOption": "Month",
+  "all": "All",
+  "detailTitle": "Car Details",
+  "detailUnknownModel": "Unknown Model",
+  "detailDailyPrice": "Daily:",
+  "detailWeeklyPrice": "Weekly:",
+  "detailMonthlyPrice": "Monthly:",
+  "detailPickDate": "Pick-up Date:",
+  "detailReturnDate": "Return Date:",
+  "detailRentalDays": "Rental Days:",
+  "detailPayablePrice": "Payable Price:",
+  "detailNextStep": "Next Step",
+  "confirmOrderTitle": "Confirm Order",
+  "modalCountryCode": "Country Code:",
+  "modalUserPhone": "Phone:",
+  "modalUserName": "Name:",
+  "modalConfirm": "Confirm",
+  "modalCancel": "Cancel",
+  "payTitle": "Pay Deposit",
+  "payTotalLabel": "Deposit Amount:",
+  "payUploadTitle": "Upload Payment Proof",
+  "uploadPaymentTitle": "Upload Payment Proof",
+  "uploadPaymentBack": "Back"
 }
