@@ -7,4 +7,10 @@
   "all": "ทั้งหมด",
   "contactLine": "LINE / WhatsApp: +66 0937851189",
   "contactEmail": "อีเมล: zfg77@qq.com"
+  "languageLabel": "ภาษา:"
+  "detailPickDate": "วันที่รับรถ:",
+  "detailReturnDate": "วันที่คืนรถ:",
+  "detailRentalDays": "จำนวนวันเช่า:",
+  "detailPayablePrice": "ราคาที่ต้องชำระ:",
+  "detailNextStep": "ถัดไป"
 }
