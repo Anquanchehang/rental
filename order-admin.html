@@ -1,3 +1,4 @@
+<!-- 管理后台订单页面（order-admin.html）的主要结构 -->
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -16,20 +17,17 @@
       padding: 0;
     }
 
-    /* 导航栏额外样式，可根据需求调整 */
     .admin-nav {
       background-color: #fff;
       padding: 10px;
     }
 
-    /* 外层容器：占据95%宽度，最大1200px，水平居中 */
     .container {
       margin: 20px auto;
       max-width: 1200px;
       width: 95%;
     }
 
-    /* 每个订单卡片 */
     .order-card {
       margin: 20px auto;
       max-width: 1200px;
@@ -38,30 +36,51 @@
       background: #fff;
       border-radius: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-      /* 字体加大 */
-      font-size: 30px;
+      font-size: 18px;
+      line-height: 1.6;
     }
 
     .order-card h5 {
       margin-bottom: 10px;
-      font-size: 18px;
+      font-size: 20px;
+      font-weight: bold;
     }
 
     .order-card p {
-      margin: 0;
-      line-height: 1.6;
+      margin: 5px 0;
     }
 
-    .footer {
-      background-color: #eee;
-      text-align: center;
-      padding: 10px;
-      margin-top: 30px;
+    .order-card strong {
+      color: #333;
+    }
+
+    .filter-btn.active.btn-outline-primary {
+      background-color: #0d6efd;  /* Bootstrap Primary 蓝色 */
+      color: #fff;
+      border-color: #0d6efd;
+    }
+
+    .filter-btn.active.btn-outline-success {
+      background-color: #198754;  /* Bootstrap Success 绿色 */
+      color: #fff;
+      border-color: #198754;
+    }
+
+    .filter-btn.active.btn-outline-danger {
+      background-color: #dc3545;  /* Bootstrap Danger 红色 */
+      color: #fff;
+      border-color: #dc3545;
+    }
+
+    .filter-btn.active.btn-outline-secondary {
+      background-color: #6c757d;  /* Bootstrap Secondary 灰色 */
+      color: #fff;
+      border-color: #6c757d;
     }
   </style>
 
-  <!-- 如果用户未登录admin，则跳转到login.html -->
   <script>
+    // 如果用户未登录 admin，则跳转到 login.html
     if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
       window.location.href = 'login.html';
     }
@@ -76,8 +95,17 @@
 
   <div class="container">
     <h2>Admin - Order Management</h2>
+    <div class="text-center">
+      <div class="text-center">
+        <button class="btn btn-outline-primary filter-btn" onclick="filterOrders('all', this)">全部</button>
+        <button class="btn btn-outline-primary filter-btn" onclick="filterOrders('pending', this)">待处理</button>
+        <button class="btn btn-outline-success filter-btn" onclick="filterOrders('confirmed', this)">已确认</button>
+        <button class="btn btn-outline-danger filter-btn" onclick="filterOrders('canceled', this)">已取消</button>
+      </div>
+    </div>
     <div id="orderList"></div>
   </div>
+
 
   <div class="footer">
     <p>Admin Panel © 2025</p>
@@ -88,6 +116,10 @@
 
   <!-- 业务逻辑脚本 -->
   <script type="module">
+
+  if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+      window.location.href = 'login.html';
+  }
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { 
       getFirestore,
@@ -97,40 +129,45 @@
       doc
     } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-    // 1) 替换为你的 Firebase 配置
+    // Firebase 配置
     const firebaseConfig = {
       apiKey: "AIzaSyCdnLMa08erHhagro9PKHT2DU7mKcHCYe4",
       authDomain: "rental-7fe8c.firebaseapp.com",
       projectId: "rental-7fe8c",
       storageBucket: "rental-7fe8c.firebasestorage.app",
-      messagingSenderId:  "263132536954",
-      appId: "1:263132536954:web:55d988d88b1a078b4b9bc3",
-  
+      messagingSenderId: "263132536954",
+      appId: "1:263132536954:web:55d988d88b1a078b4b9bc3"
     };
 
-    // 2) 初始化 Firebase
+    // 初始化 Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 3) 监听 orders 集合
+    let globalOrders = [];
     onSnapshot(collection(db, "orders"), (snapshot) => {
       const orders = [];
       snapshot.forEach((docSnap) => {
         orders.push({ id: docSnap.id, ...docSnap.data() });
       });
+      globalOrders = orders;
+      // 默认显示全部订单
       renderOrders(orders);
     });
 
-    // 4) 渲染订单列表
+    // 渲染订单列表，新增押金信息及状态显示
     function renderOrders(orders) {
       const orderList = document.getElementById("orderList");
       orderList.innerHTML = "";
       orders.forEach((order, idx) => {
-        // 订单状态
+        // 订单状态，默认为 "pending"
         const status = order.status || "pending";
-        // 根据状态决定按钮是否显示/禁用
+        // 如果订单中没有押金，则显示“未支付”，否则显示具体金额
+        const depositDisplay = (order.deposit === undefined || order.deposit === null) ? "未支付" : order.deposit;
+
+        // 根据订单状态设置操作按钮
         let confirmButton = "";
         let cancelButton = "";
+        let restoreButton = "";
 
         if (status === "pending") {
           confirmButton = `<button class="btn btn-success btn-sm me-2" onclick="confirmOrder('${order.id}')">确认订单</button>`;
@@ -140,21 +177,32 @@
           cancelButton = `<button class="btn btn-danger btn-sm" onclick="cancelOrder('${order.id}')">取消订单</button>`;
         } else if (status === "canceled") {
           confirmButton = `<button class="btn btn-secondary btn-sm me-2" disabled>已取消</button>`;
-          cancelButton = `<button class="btn btn-danger btn-sm" disabled>已取消</button>`;
+          cancelButton = `<button class="btn btn-warning btn-sm" onclick="restoreOrder('${order.id}')">恢复订单</button>`;
+          
+        }
+        let orderTime = "无时间记录";
+        if (order.createdAt) {
+          // Firestore Timestamp => JS日期 => 格式化
+          const dateObj = order.createdAt.toDate();
+          orderTime = dateObj.toLocaleString(); // 或自定义格式
         }
 
+        // 构造订单卡片 HTML
         const orderHtml = `
           <div class="order-card">
             <h5>订单 ${idx + 1}</h5>
+            <p><strong>订单时间:</strong> ${orderTime}</p>
             <p><strong>车辆:</strong> ${order.carName || "未知"}</p>
             <p><strong>取车日期:</strong> ${order.startDate || "未填"}</p>
             <p><strong>还车日期:</strong> ${order.endDate || "未填"}</p>
             <p><strong>客户:</strong> ${order.name || "未知"} - ${order.phone || "未知"}</p>
-            <p><strong>天数:</strong> ${order.days || "--"}　<strong>价格:</strong> ${order.totalPrice || "--"}</p>
+            <p><strong>租车天数:</strong> ${order.days || "--"}　<strong>租金价格:</strong> ${order.rentalPrice || "--"}</p>
+            <p><strong>押金:</strong> ${order.deposit}</p>
             <p><strong>状态:</strong> ${status}</p>
             <div class="mt-2">
               ${confirmButton}
               ${cancelButton}
+              ${restoreButton}
             </div>
           </div>
         `;
@@ -162,7 +210,22 @@
       });
     }
 
-    // 5) 确认订单函数
+    window.filterOrders = function(status, btn) {
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      let filteredOrders = [];
+      if (status === "all") {
+        filteredOrders = globalOrders;
+      } else {
+        filteredOrders = globalOrders.filter(order => {
+          // 若订单没有状态，默认视为 pending
+          return (order.status || "pending") === status;
+        });
+      }
+      renderOrders(filteredOrders);
+    }
+
+    // 确认订单函数
     window.confirmOrder = async function(orderId) {
       try {
         await updateDoc(doc(db, "orders", orderId), { status: "confirmed" });
@@ -170,9 +233,9 @@
       } catch (error) {
         alert("确认失败：" + error.message);
       }
-    }
+    };
 
-    // 6) 取消订单函数
+    // 取消订单函数
     window.cancelOrder = async function(orderId) {
       if (!confirm("确认要取消该订单吗？")) return;
       try {
@@ -180,6 +243,16 @@
         alert("订单已取消！");
       } catch (error) {
         alert("取消失败：" + error.message);
+      }
+    };
+    window.restoreOrder = async function(orderId) {
+      if (!confirm("确认要恢复该订单吗？")) return;
+      try {
+        // 假设我们恢复到 "pending" 状态
+        await updateDoc(doc(db, "orders", orderId), { status: "pending" });
+        alert("订单已恢复！");
+      } catch (error) {
+        alert("恢复失败：" + error.message);
       }
     }
   </script>
