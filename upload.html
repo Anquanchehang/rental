@@ -1,16 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <title>上传支付凭证</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-i18n="uploadPayTitle">上传支付凭证</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 20px;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 20px; }
     .back-btn {
       background: #eee;
       border: none;
@@ -25,135 +21,144 @@
       max-width: 600px;
       margin: 0 auto;
       background: #fff;
-      padding: 20px;
+      padding: 30px;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       text-align: center;
     }
-    h1 {
-      margin-bottom: 20px;
-      font-size: 24px;
-      color: #333;
-    }
-    .order-info {
-      background: #fafafa;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      font-size: 16px;
-      line-height: 1.6;
-      text-align: left;
-    }
+    h1 { margin-bottom: 20px; font-size: 24px; color: #333; }
+    .order-info { background: #fafafa; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 16px; line-height: 1.6; text-align: left; }
     .order-info p { margin: 6px 0; }
-    .qr-container {
-      margin: 20px 0;
-    }
-    .qr-container img {
-      width: 200px;
-      height: 200px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-    }
-    p {
-      font-size: 16px;
-      color: #333;
-      margin: 10px 0;
-    }
-    a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-    .status {
-      margin-top: 15px;
-      font-size: 14px;
-      color: #555;
-    }
+    .qr-container { margin: 20px 0; }
+    .qr-container img { width: 200px; height: 200px; border: 1px solid #ccc; border-radius: 10px; }
+    p { font-size: 16px; color: #333; margin: 10px 0; }
+    a { color: #007bff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .status { margin-top: 15px; font-size: 14px; color: #555; }
   </style>
 </head>
 <body>
 
   <!-- 返回按钮 -->
-  <button class="back-btn" onclick="goBack()">← 返回</button>
+  <button class="back-btn" onclick="goBack()">← <span data-i18n="uploadPaymentBack">返回</span></button>
 
   <div class="container">
-    <h1>上传支付凭证</h1>
+    <h1 data-i18n="payUploadTitle">上传支付凭证</h1>
 
     <!-- 订单信息显示区域 -->
     <div class="order-info" id="orderInfo">
-      <p>订单号：<strong id="orderId"></strong></p>
-      <p>车辆名称：<strong id="carName"></strong></p>
-      <p>租期天数：<strong id="rentalDays"></strong></p>
-      <p>总价：<strong id="totalPrice"></strong></p>
-      <p>押金：<strong id="deposit"></strong></p>
-      <p>联系人：<strong id="contactName"></strong></p>
-      <p>手机号：<strong id="phoneNumber"></strong></p>
+      <p data-i18n="uploadOrderNotFound">未获取到订单信息，请检查链接是否正确！</p>
     </div>
 
-    <p>请使用微信扫描下方二维码，上传您的付款截图：</p>
+    <p data-i18n="uploadPaymentInstruction">请使用微信扫描下方二维码，上传您的付款截图：</p>
     <div class="qr-container">
       <!-- 替换为实际的上传页面二维码图片 -->
-      <img src="https://example.com/your-upload-qr.png" alt="上传付款证明二维码">
+      <img src="https://github.com/Anquanchehang/rental/blob/main/QR%20Code%20for%20Multiple%20Members%20(1).png?raw=true" alt="上传付款证明二维码">
     </div>
 
-    <p>如果您无法扫描二维码，请点击 <a href="mobile-upload.html">这里</a> 进行上传。</p>
+
 
     <div class="status" id="statusMsg"></div>
   </div>
 
-  <!-- 引入 Firebase SDK 模块 -->
+  
+
+  <!-- 多语言加载及 Firebase 逻辑 -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-
-    // 替换为你自己的 Firebase 配置
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "your-project.firebaseapp.com",
-      projectId: "your-project",
-      storageBucket: "your-project.appspot.com",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-
-    // 初始化 Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    /***************************************
+     * 1) 多语言相关函数
+     ***************************************/
+    async function loadLanguage(lang) {
+      try {
+        const resp = await fetch(`lang/${lang}.json`);
+        return await resp.json();
+      } catch (err) {
+        console.error("语言文件加载失败:", err);
+        return {};
+      }
+    }
+    function applyLanguage(langData) {
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (langData[key]) {
+          el.textContent = langData[key];
+        }
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        const key = el.getAttribute("data-i18n-placeholder");
+        if (langData[key]) {
+          el.setAttribute("placeholder", langData[key]);
+        }
+      });
+    }
+    function getCurrentLang() {
+      return localStorage.getItem("selectedLanguage") || "zh";
+    }
+    let currentLangData = {};
+    async function initLanguage() {
+      const currentLang = getCurrentLang();
+      currentLangData = await loadLanguage(currentLang);
+      applyLanguage(currentLangData);
+    }
+    window.addEventListener("DOMContentLoaded", async () => {
+      await initLanguage();
+    });
 
     function goBack() {
       window.history.back();
     }
     window.goBack = goBack;
 
-    // 从 URL 参数获取订单ID
+    /***************************************
+     * 2) Firebase 初始化 & 订单数据加载
+     ***************************************/
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "rental-7fe8c.firebaseapp.com",
+      projectId: "rental-7fe8c",
+      storageBucket: "rental-7fe8c.firebasestorage.app",
+      messagingSenderId: "263132536954",
+      appId: "1:263132536954:web:55d988d88b1a078b4b9bc3"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // 读取订单信息并显示在页面上
     const params = new URLSearchParams(window.location.search);
     const orderId = params.get("orderId");
+    console.log("upload.html 拿到 orderId:", orderId);
 
-    if (!orderId) {
-      document.getElementById("orderInfo").innerHTML = "<p class='status'>未获取到订单信息，请检查链接是否正确！</p>";
-    } else {
-      // 从 Firestore 查询订单信息（订单文档存储在 orders 集合中）
-      getDoc(doc(db, "orders", orderId))
+    if (orderId) {
+      const orderDocRef = doc(db, "orders", orderId);
+      getDoc(orderDocRef)
         .then(docSnap => {
           if (docSnap.exists()) {
             const orderData = docSnap.data();
-            document.getElementById("orderId").textContent = orderId;
-            document.getElementById("carName").textContent = orderData.carName || "未知车辆";
-            document.getElementById("rentalDays").textContent = (orderData.totalDays || "0") + " 天";
-            document.getElementById("totalPrice").textContent = orderData.totalPrice ? "฿" + orderData.totalPrice : "未知";
-            document.getElementById("deposit").textContent = orderData.deposit ? "฿" + orderData.deposit : "未知";
-            document.getElementById("contactName").textContent = orderData.contactName || "未知";
-            document.getElementById("phoneNumber").textContent = orderData.phoneNumber || "未知";
+            console.log("upload.html 查询到订单:", orderData);
+
+            document.getElementById("orderInfo").innerHTML = `
+            <p><span data-i18n="contactNameLabel">Contact Name: </span> <strong>${orderData.name || "未知"}</strong></p>
+              <p><span data-i18n="phoneNumberLabel">Phone Number: </span> <strong>${orderData.phone || "未知"}</strong></p>
+              <p><span data-i18n="carNameLabel">Car Name: </span> <strong>${orderData.carName || "未知车辆"}</strong></p>
+              <p><span data-i18n="rentalDaysLabel">Rental Days: </span> <strong>${orderData.days || "0"} 天</strong></p>
+              <p><span data-i18n="detailPayablePrice">租金价格: </span> <strong>฿${orderData.rentalPrice || "未知"}</strong></p>
+              <p><span data-i18n="depositLabel">押金价格: </span> <strong>฿${orderData.deposit || "未知"}</strong></p>
+              <p><span data-i18n="payTotalLabel">定金金额: </span> <strong>฿${"500"}</strong></p>
+              <p><span data-i18n="orderIdLabel">OrderID: </span> <strong>${orderData.orderId}</strong></p>
+            `;
+            applyLanguage(currentLangData);
           } else {
-            document.getElementById("orderInfo").innerHTML = "<p class='status'>未找到该订单，请检查订单号是否正确！</p>";
+            document.getElementById("orderInfo").textContent = currentLangData.orderNotFound || "Order not found!";
           }
         })
-        .catch(error => {
-          console.error("获取订单失败：", error);
-          document.getElementById("orderInfo").innerHTML = "<p class='status'>加载订单时出错，请稍后再试。</p>";
+        .catch(err => {
+          console.error("查询订单失败:", err);
+          document.getElementById("orderInfo").textContent = currentLangData.orderLoadError || "Failed to load order, please try again later.";
         });
+    } else {
+      document.getElementById("orderInfo").textContent = currentLangData.orderIdNotProvided || "Order ID not provided.";
     }
   </script>
 </body>
