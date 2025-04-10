@@ -210,11 +210,11 @@
         </select>
       </div>
       <div class="filter-group">
-        <label for="langSelect" data-i18n="language">语言</label>
+        <label data-i18n="languageLabel" for="langSelect">语言</label>
         <select id="langSelect">
-          <option value="zh">中文</option>
-          <option value="en">English</option>
-          <option value="th">ไทย</option>
+          <option value="zh" data-i18n="optionZh">中文</option>
+    	    <option value="en" data-i18n="optionEn">English</option>
+     	    <option value="th" data-i18n="optionTh">ไทย</option>
         </select>
       </div>
     </div>
@@ -225,8 +225,14 @@
   </div>
 
   <div class="footer">
-    <p data-i18n="contactLine">LINE / WhatsApp: +66 0937851189</p>
-    <p data-i18n="contactEmail">邮箱: zfg77@qq.com</p>
+    <p>
+      <span data-i18n="contactLine">LINE / WhatsApp:</span>
+      <span class="phone">+66 0937851189</span>
+    </p>
+    <p>
+      <span data-i18n="contactEmail">邮箱: </span>
+    <span class="contact-value">zfg77@qq.com</span>
+    </p>
   </div>
 
   <script type="module">
