@@ -12,24 +12,35 @@
       background-color: #f4f4f4;
     }
     .container { 
+      
       margin-top: 20px;
     }
     h2 { 
+      
       margin-bottom: 20px;
+    }
+    .card-wrapper {
+      width: 95%;
+      margin: 0 auto; /* 让其水平居中 */
     }
     .card-custom {
+      width: 100%;
+      margin: 0 auto;  /* 让其居中 */
       border: none;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 20px;
-      position: relative;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: all 0.3s ease;
+      /* 让卡片更大一些 */
+      min-height: 600px;
+      margin-bottom: 30px;
     }
     .card-custom:hover {
+      box-shadow: 0 6px 16px rgba(0,0,0,0.25);
       transform: scale(1.02);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
+    .card-custom .card-body {
+      padding: 20px;
+  }   
     .card-custom img {
       width: 100%;
       height: 200px;
@@ -37,6 +48,16 @@
       border-radius: 5px;
       margin-bottom: 10px;
     }
+    .card-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .car-details {
+      font-size: 18px;
+      color: #555;
+      margin-bottom: 10px;
+    } 
     textarea {
       width: 100%;
       min-height: 100px;
@@ -58,16 +79,6 @@
       color: #fff;
       cursor: pointer;
     }
-    .car-title {
-      font-size: 18px;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-    .car-details {
-      font-size: 14px;
-      margin-top: 5px;
-      white-space: pre-line;
-    }
     .footer {
       background-color: #0056b3;
       color: #fff;
@@ -83,6 +94,38 @@
     .lang-group label {
       font-weight: bold;
       margin-top: 10px;
+    }
+    /* 中等屏幕(768px以上)时 */
+    @media (min-width: 768px) {
+      .card-custom {
+        min-height: 400px;
+        padding: 15px;
+        margin-bottom: 20px;
+      }
+      /* 图片高度略降低 */
+      .card-custom img {
+        height: 150px;
+      }
+      /* 调整标题和详情文字 */
+      .card-title {
+        font-size: 16px;
+      }
+      .car-details {
+        font-size: 14px;
+      }
+      /* 文本域稍微缩小，适应小屏 */
+      textarea {
+        min-height: 80px;
+        font-size: 12px;
+        padding: 8px;
+      }
+    }
+
+    /* 大屏幕(1200px以上)时 */
+    @media (min-width: 1200px) {
+      .card-custom {
+        font-size: 20px;
+      }
     }
   </style>
 
@@ -106,13 +149,13 @@
 
     <div class="mb-3">
       <button id="addCarBtn" class="btn btn-success me-2">
-        <i class="fas fa-plus"></i> Add New Car
+        <i class="fas fa-plus"></i> 加车
       </button>
       <button id="sortBtn" class="btn btn-primary me-2">
-        <i class="fas fa-sort-numeric-down"></i> Sort by Price
+        <i class="fas fa-sort-numeric-down"></i> 排序
       </button>
       <button id="batchDeleteBtn" class="btn btn-danger">
-        <i class="fas fa-trash"></i> Batch Delete
+        <i class="fas fa-trash"></i> 批量删除
       </button>
     </div>
 
@@ -126,6 +169,10 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script type="module">
+    
+    if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+      window.location.href = 'login.html';
+    }
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
@@ -207,12 +254,20 @@
       }
     }
 
+    function generateUniqueId() {
+      // 这里使用当前时间戳生成一个简单的唯一ID
+      return Date.now().toString();
+    }
+
     function addCar() {
+
+      
       carsData.push({
+        id: generateUniqueId(),
         text: {
-          zh: "新车名称\n日租：0\n周租：0\n月租：0",
-          en: "New Car\nDay: 0\nWeek: 0\nMonth: 0",
-          th: "รถใหม่\nค่าเช่าวัน: 0\nค่าเช่าวีค: 0\nค่าเช่าเดือน: 0"
+          zh: "",
+          en: "",
+          th: ""
         },
         image: "",
         description: {
@@ -220,6 +275,7 @@
           en: "",
           th: ""
         },
+        
         selected: false
       });
       saveData();
@@ -305,8 +361,8 @@
         const restLines = textObj.zh ? textObj.zh.split("\n").slice(1).join("\n") : "";
 
         const cardHtml = `
-          <div class="col-12 col-md-6">
-            <div class="card-custom">
+          <div class="col-12 mb-4">
+            <div class="card-custom p-3">
               <div class="form-check mb-2">
                 <input class="form-check-input" type="checkbox" ${car.selected ? "checked" : ""} onchange="toggleSelect(${index}, this)">
               </div>
@@ -323,33 +379,64 @@
               <div class="car-details">${restLines}</div>
 
               <!-- 多语言车辆信息输入 -->
-              <div class="lang-group">
-                <label>车辆信息 (中文):</label>
-                <textarea class="form-control" oninput="updateText(event, ${index}, 'zh')">${textObj.zh || ""}</textarea>
+              
+                   
+              <div class="lang-group mt-3">
+                <!-- 导航 Tab -->
+                <ul class="nav nav-tabs" id="langTabs_${index}" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#langZh_${index}" type="button" role="tab">中文</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#langEn_${index}" type="button" role="tab">English</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#langTh_${index}" type="button" role="tab">ไทย</button>
+                  </li>
+                </ul>
+                <!-- Tab 内容，每个 Tab 内部采用左右分栏展示车辆信息和描述 -->
+                <div class="tab-content mt-3" id="langTabsContent_${index}">
+                  <!-- 中文 Tab -->
+                  <div class="tab-pane fade show active" id="langZh_${index}" role="tabpanel">
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label"><strong>车辆信息 (中文):</strong></label>
+                        <textarea class="form-control" rows="4" oninput="updateText(event, ${index}, 'zh')">${textObj.zh || ""}</textarea>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label"><strong>描述 (中文):</strong></label>
+                        <textarea class="form-control" rows="4" oninput="updateDescription(event, ${index}, 'zh')">${descriptionObj.zh || ""}</textarea>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- English Tab -->
+                  <div class="tab-pane fade" id="langEn_${index}" role="tabpanel">
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label"><strong>Car Info (English):</strong></label>
+                        <textarea class="form-control" rows="4" oninput="updateText(event, ${index}, 'en')">${textObj.en || ""}</textarea>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label"><strong>Description (English):</strong></label>
+                        <textarea class="form-control" rows="4" oninput="updateDescription(event, ${index}, 'en')">${descriptionObj.en || ""}</textarea>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Thai Tab -->
+                  <div class="tab-pane fade" id="langTh_${index}" role="tabpanel">
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label"><strong>ข้อมูลรถ (ไทย):</strong></label>
+                        <textarea class="form-control" rows="4" oninput="updateText(event, ${index}, 'th')">${textObj.th || ""}</textarea>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label"><strong>คำอธิบาย (ไทย):</strong></label>
+                        <textarea class="form-control" rows="4" oninput="updateDescription(event, ${index}, 'th')">${descriptionObj.th || ""}</textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="lang-group">
-                <label>Car Info (English):</label>
-                <textarea class="form-control" oninput="updateText(event, ${index}, 'en')">${textObj.en || ""}</textarea>
-              </div>
-              <div class="lang-group">
-                <label>ข้อมูลรถ (ไทย):</label>
-                <textarea class="form-control" oninput="updateText(event, ${index}, 'th')">${textObj.th || ""}</textarea>
-              </div>
-
-              <!-- 多语言描述输入 -->
-              <div class="lang-group">
-                <label>描述 (中文):</label>
-                <textarea class="form-control" oninput="updateDescription(event, ${index}, 'zh')">${descriptionObj.zh || ""}</textarea>
-              </div>
-              <div class="lang-group">
-                <label>Description (English):</label>
-                <textarea class="form-control" oninput="updateDescription(event, ${index}, 'en')">${descriptionObj.en || ""}</textarea>
-              </div>
-              <div class="lang-group">
-                <label>คำอธิบาย (ไทย):</label>
-                <textarea class="form-control" oninput="updateDescription(event, ${index}, 'th')">${descriptionObj.th || ""}</textarea>
-              </div>
-
             </div>
           </div>
         `;
