@@ -5,18 +5,15 @@
   <title>Admin - Car Rental</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
     }
     .container { 
-      
       margin-top: 20px;
     }
     h2 { 
-      
       margin-bottom: 20px;
     }
     .card-wrapper {
@@ -30,9 +27,10 @@
       border-radius: 15px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       transition: all 0.3s ease;
-      /* 让卡片更大一些 */
+      /* 默认较大 */
       min-height: 600px;
       margin-bottom: 30px;
+      position: relative;
     }
     .card-custom:hover {
       box-shadow: 0 6px 16px rgba(0,0,0,0.25);
@@ -40,7 +38,7 @@
     }
     .card-custom .card-body {
       padding: 20px;
-  }   
+    }
     .card-custom img {
       width: 100%;
       height: 200px;
@@ -48,7 +46,7 @@
       border-radius: 5px;
       margin-bottom: 10px;
     }
-    .card-title {
+    .car-title {
       font-size: 20px;
       font-weight: bold;
       margin-bottom: 10px;
@@ -57,7 +55,8 @@
       font-size: 18px;
       color: #555;
       margin-bottom: 10px;
-    } 
+      white-space: pre-line;
+    }
     textarea {
       width: 100%;
       min-height: 100px;
@@ -95,37 +94,14 @@
       font-weight: bold;
       margin-top: 10px;
     }
-    /* 中等屏幕(768px以上)时 */
-    @media (min-width: 768px) {
-      .card-custom {
-        min-height: 400px;
-        padding: 15px;
-        margin-bottom: 20px;
+    /* 小屏幕优化 */
+    @media (max-width: 768px) {
+      .page-wrapper { flex-direction: column; }
+      .left-section, .left-section img {
+        width: 100%; max-width: none;
+        margin: 0 auto; display: block;
       }
-      /* 图片高度略降低 */
-      .card-custom img {
-        height: 150px;
-      }
-      /* 调整标题和详情文字 */
-      .card-title {
-        font-size: 16px;
-      }
-      .car-details {
-        font-size: 14px;
-      }
-      /* 文本域稍微缩小，适应小屏 */
-      textarea {
-        min-height: 80px;
-        font-size: 12px;
-        padding: 8px;
-      }
-    }
-
-    /* 大屏幕(1200px以上)时 */
-    @media (min-width: 1200px) {
-      .card-custom {
-        font-size: 20px;
-      }
+      .right-section { width: 100%; }
     }
   </style>
 
@@ -144,9 +120,7 @@
 
   <div class="container">
     <h2>Admin - Manage Cars</h2>
-
     <div id="messageArea"></div>
-
     <div class="mb-3">
       <button id="addCarBtn" class="btn btn-success me-2">
         <i class="fas fa-plus"></i> 加车
@@ -158,7 +132,6 @@
         <i class="fas fa-trash"></i> 批量删除
       </button>
     </div>
-
     <div class="row" id="carList"></div>
   </div>
 
@@ -166,10 +139,11 @@
     <p>Admin Panel © 2025</p>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
   <script type="module">
-    
+    // 检查登录状态
     if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
       window.location.href = 'login.html';
     }
@@ -203,28 +177,20 @@
       }, 3000);
     }
 
-    // 1) async 声明，确保可以使用 await
+    // 加载车辆数据
     async function loadData() {
       try {
         const docRef = doc(db, "cars", "data");
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           carsData = docSnap.data().cars || [];
-          // 遍历 carsData，每个 car 如果 text/description 是字符串，就转成对象
+          // 如果 text 或 description 是字符串，则转换为多语言对象
           carsData.forEach(car => {
             if (typeof car.text === "string") {
-              car.text = {
-                zh: car.text,
-                en: "",
-                th: ""
-              };
+              car.text = { zh: car.text, en: "", th: "" };
             }
             if (typeof car.description === "string") {
-              car.description = {
-                zh: car.description,
-                en: "",
-                th: ""
-              };
+              car.description = { zh: car.description, en: "", th: "" };
             }
           });
         } else {
@@ -236,7 +202,7 @@
       }
     }
 
-    // 2) 实时监听
+    // 实时监听车辆数据更新
     onSnapshot(doc(db, "cars", "data"), (docSnap) => {
       if (docSnap.exists()) {
         carsData = docSnap.data().cars || [];
@@ -244,7 +210,7 @@
       }
     });
 
-    // 3) 保存数据
+    // 保存车辆数据
     async function saveData() {
       try {
         const docRef = doc(db, "cars", "data");
@@ -255,27 +221,15 @@
     }
 
     function generateUniqueId() {
-      // 这里使用当前时间戳生成一个简单的唯一ID
       return Date.now().toString();
     }
 
     function addCar() {
-
-      
       carsData.push({
         id: generateUniqueId(),
-        text: {
-          zh: "",
-          en: "",
-          th: ""
-        },
-        image: "",
-        description: {
-          zh: "",
-          en: "",
-          th: ""
-        },
-        
+        text: { zh: "", en: "", th: "" },
+        images: [], // 新增图片数组字段
+        description: { zh: "", en: "", th: "" },
         selected: false
       });
       saveData();
@@ -306,7 +260,7 @@
       saveData();
     }
 
-    // 更新 text[lang]
+    // 更新车辆文本（多语言）
     function updateText(event, index, lang) {
       if (!carsData[index].text) {
         carsData[index].text = {};
@@ -315,14 +269,14 @@
       saveData();
     }
 
-    // 更新 image
+    // 更新单张图片 URL
     function updateImageUrl(event, index) {
       carsData[index].image = event.target.value;
       saveData();
       renderCars();
     }
 
-    // 更新 description[lang]
+    // 更新车辆描述（多语言）
     function updateDescription(event, index, lang) {
       if (!carsData[index].description) {
         carsData[index].description = {};
@@ -331,7 +285,7 @@
       saveData();
     }
 
-    // 按“中文日租”排序
+    // 排序函数（按中文日租价格排序）
     function sortByPrice() {
       carsData.sort((a, b) => {
         const priceA = extractDayPrice(a.text?.zh || "");
@@ -343,46 +297,96 @@
       showMessage("Sorted by day price.", "success");
     }
 
-    // 解析中文“日租：xxx”
     function extractDayPrice(text) {
       const match = text.match(/日租：(\d+)/);
       return match ? parseInt(match[1]) : Infinity;
     }
 
+    // 用于在 admin 卡片里生成多张图片的编辑区域
+    function renderCarImagesFields(car, carIndex) {
+      if (!car.images) {
+        car.images = [];
+      }
+      let html = `<div style="margin-bottom:10px;">`;
+
+      car.images.forEach((imgUrl, imgIndex) => {
+        html += `
+          <div class="input-group mb-1" style="max-width:500px;">
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              value="${imgUrl}"
+              placeholder="Paste image URL"
+              oninput="updateImageUrlArray(event, ${carIndex}, ${imgIndex})"
+            >
+            <button class="btn btn-danger btn-sm" type="button" onclick="removeImageUrl(${carIndex}, ${imgIndex})">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        `;
+      });
+
+      html += `
+        <button class="btn btn-secondary btn-sm" type="button" onclick="addImageField(${carIndex})">
+          + 图片
+        </button>
+      `;
+
+      html += `</div>`;
+      return html;
+    }
+    // 点击“+图片”按钮时，往 car.images 数组里加一个空字符串
+    window.addImageField = function(carIndex) {
+      carsData[carIndex].images.push("");
+      saveData();
+      renderCars();
+    };
+
+    // 当用户在图片 URL input 中输入时更新数组
+    window.removeImageUrl = function(carIndex, imgIndex) {
+      carsData[carIndex].images.splice(imgIndex, 1);
+      saveData();
+      renderCars();
+    };
+
+    window.updateImageUrlArray = function(event, carIndex, imgIndex) {
+      carsData[carIndex].images[imgIndex] = event.target.value;
+      saveData();
+    };
+
     function renderCars() {
       const carList = document.getElementById("carList");
       carList.innerHTML = "";
-
       carsData.forEach((car, index) => {
         const textObj = car.text || {};
         const descriptionObj = car.description || {};
-        // 用中文显示做示例
         const firstLine = textObj.zh ? textObj.zh.split("\n")[0] : "";
         const restLines = textObj.zh ? textObj.zh.split("\n").slice(1).join("\n") : "";
 
+        // 生成多张图片展示区域
+        const imagesFieldsHtml = renderCarImagesFields(car, index);
+
         const cardHtml = `
           <div class="col-12 mb-4">
-            <div class="card-custom p-3">
+            <div class="card-custom p-3" style="position: relative;">
               <div class="form-check mb-2">
                 <input class="form-check-input" type="checkbox" ${car.selected ? "checked" : ""} onchange="toggleSelect(${index}, this)">
               </div>
               <button class="btn btn-danger btn-sm delete-button" onclick="deleteCar(${index})">
                 <i class="fas fa-trash"></i>
               </button>
-              <img src="${car.image || 'https://via.placeholder.com/200'}" alt="Car Image">
 
-              <label class="form-label mt-2">Image URL:
-                <input type="text" class="form-control form-control-sm" placeholder="Paste image URL" value="${car.image}" oninput="updateImageUrl(event, ${index})">
-              </label>
-
+              <!-- 添加多张图片编辑区域 -->
+              <div class="mt-2">
+                <label class="form-label">多张图片 (images数组):</label>
+                ${renderCarImagesFields(car, index)}
+              </div>
+              
               <div class="car-title">${firstLine}</div>
               <div class="car-details">${restLines}</div>
-
-              <!-- 多语言车辆信息输入 -->
               
-                   
+              <!-- 下面可以加入多语言的编辑区域 -->
               <div class="lang-group mt-3">
-                <!-- 导航 Tab -->
                 <ul class="nav nav-tabs" id="langTabs_${index}" role="tablist">
                   <li class="nav-item" role="presentation">
                     <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#langZh_${index}" type="button" role="tab">中文</button>
@@ -394,9 +398,7 @@
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#langTh_${index}" type="button" role="tab">ไทย</button>
                   </li>
                 </ul>
-                <!-- Tab 内容，每个 Tab 内部采用左右分栏展示车辆信息和描述 -->
                 <div class="tab-content mt-3" id="langTabsContent_${index}">
-                  <!-- 中文 Tab -->
                   <div class="tab-pane fade show active" id="langZh_${index}" role="tabpanel">
                     <div class="row">
                       <div class="col-md-6 mb-3">
@@ -409,7 +411,6 @@
                       </div>
                     </div>
                   </div>
-                  <!-- English Tab -->
                   <div class="tab-pane fade" id="langEn_${index}" role="tabpanel">
                     <div class="row">
                       <div class="col-md-6 mb-3">
@@ -422,7 +423,6 @@
                       </div>
                     </div>
                   </div>
-                  <!-- Thai Tab -->
                   <div class="tab-pane fade" id="langTh_${index}" role="tabpanel">
                     <div class="row">
                       <div class="col-md-6 mb-3">
@@ -440,7 +440,7 @@
             </div>
           </div>
         `;
-        carList.insertAdjacentHTML("beforeend", cardHtml);
+        document.getElementById("carList").insertAdjacentHTML("beforeend", cardHtml);
       });
     }
 
@@ -449,16 +449,17 @@
       document.getElementById("sortBtn").addEventListener("click", sortByPrice);
       document.getElementById("batchDeleteBtn").addEventListener("click", batchDelete);
 
-      // 注意，loadData 需要 async
+      // 加载数据
       loadData();
     });
 
-    // 挂载到 window 解决 "not defined" 问题
+    // 将一些函数挂载到全局
     window.deleteCar = deleteCar;
     window.toggleSelect = toggleSelect;
     window.updateText = updateText;
     window.updateImageUrl = updateImageUrl;
     window.updateDescription = updateDescription;
+    
   </script>
 </body>
 </html>
