@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Pick Up Sticks 游戏</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 20px; }
+    .stick { width: 8px; height: 60px; background: #8B4513; margin: 2px; display: inline-block; }
+    #sticksContainer { margin: 20px; }
+    button { margin: 5px; padding: 10px 20px; }
+  </style>
+</head>
+<body>
+  <div id="setup">
+    <label for="stickInput">How many sticks (10-100)? </label>
+    <input type="number" id="stickInput" min="10" max="100" value="20" />
+    <div style="margin-top:10px;">
+      <label><input type="radio" name="mode" value="pvp" checked /> PvP 模式</label>
+      <label><input type="radio" name="mode" value="pvc" /> 机器 (Hard) 模式</label>
+    </div>
+    <button id="startBtn">Start Game</button>
+    <p id="setupMsg" style="color:red;"></p>
+  </div>
+
+  <div id="game" style="display:none;">
+    <p id="turnInfo"></p>
+    <div id="sticksContainer"></div>
+    <div>
+      <button class="pickBtn" data-pick="1">Pick 1</button>
+      <button class="pickBtn" data-pick="2">Pick 2</button>
+      <button class="pickBtn" data-pick="3">Pick 3</button>
+    </div>
+    <p id="aiInfo" style="color:blue;"></p>
+    <p id="message" style="color:red;"></p>
+  </div>
+
+  <script>
+    document.getElementById('startBtn').addEventListener('click', startGame);
+
+    function startGame() {
+      let stickNum = parseInt(document.getElementById('stickInput').value, 10);
+      const setupMsg = document.getElementById('setupMsg');
+      if (isNaN(stickNum) || stickNum < 10 || stickNum > 100) {
+        setupMsg.textContent = '请输入10到100之间的数字';
+        return;
+      }
+      setupMsg.textContent = '';
+
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      const isPvC = mode === 'pvc';
+
+      let currentPlayer = 1;
+      document.getElementById('setup').style.display = 'none';
+      document.getElementById('game').style.display = '';
+
+      const turnInfo = document.getElementById('turnInfo');
+      const sticksContainer = document.getElementById('sticksContainer');
+      const message = document.getElementById('message');
+      const aiInfo = document.getElementById('aiInfo');
+
+      function renderSticks() {
+        sticksContainer.innerHTML = '';
+        for (let i = 0; i < stickNum; i++) {
+          const stick = document.createElement('div');
+          stick.className = 'stick';
+          sticksContainer.appendChild(stick);
+        }
+      }
+
+      function updateTurn() {
+        if (isPvC && currentPlayer === 2) {
+          turnInfo.textContent = '轮到 机器';
+        } else {
+          turnInfo.textContent = `轮到 玩家 ${currentPlayer}`;
+        }
+      }
+
+      function endGame(loser) {
+        renderSticks();
+        document.querySelectorAll('.pickBtn').forEach(btn => btn.disabled = true);
+        turnInfo.textContent = '';
+        message.textContent = `游戏结束！${loser} 拿到最后一根，判定${loser}输，另一方获胜！`;
+      }
+
+      function makePick(n) {
+        message.textContent = '';
+        aiInfo.textContent = '';
+        if (n < 1 || n > 3) {
+          message.textContent = '只能取1到3根';
+          return;
+        }
+        if (n > stickNum) {
+          message.textContent = '不能取多于剩余的棍子';
+          return;
+        }
+        stickNum -= n;
+        renderSticks();
+        if (stickNum === 0) {
+          const loser = isPvC ? (currentPlayer === 1 ? '玩家' : '机器') : `玩家 ${currentPlayer}`;
+          endGame(loser);
+          return;
+        }
+        currentPlayer = currentPlayer === 1 ? 2 : 1;
+        updateTurn();
+
+        if (isPvC && currentPlayer === 2) {
+          document.querySelectorAll('.pickBtn').forEach(btn => btn.disabled = true);
+          setTimeout(() => {
+            const r = stickNum % 4;
+            const cpick = ((r - 1 + 4) % 4) || 1;
+            stickNum -= cpick;
+            renderSticks();
+            aiInfo.textContent = `机器拿走 ${cpick} 根，还剩 ${stickNum} 根`;
+            if (stickNum === 0) {
+              endGame('机器');
+              return;
+            }
+            currentPlayer = 1;
+            updateTurn();
+            document.querySelectorAll('.pickBtn').forEach(btn => btn.disabled = false);
+          }, 500);
+        }
+      }
+
+      document.querySelectorAll('.pickBtn').forEach(btn => {
+        btn.disabled = false;
+        btn.addEventListener('click', () => {
+          if (isPvC && currentPlayer === 2) return;
+          makePick(parseInt(btn.dataset.pick, 10));
+        });
+      });
+
+      renderSticks();
+      updateTurn();
+    }
+  </script>
+</body>
+</html>
